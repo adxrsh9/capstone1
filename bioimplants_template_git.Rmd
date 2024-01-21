@@ -1,5 +1,5 @@
 ---
-title: "Bio Implants case assignment "
+title: "Bio Implants case assignment modified "
 author: "Adarsh Fnu "
 date: "1/21/2024 "
 output: 
@@ -100,3 +100,4 @@ predict(logistic_mod,
 ## Q5
 We can see from the calculations that the bio-implants firm has an overall attrition rate of 16.12%, representing the proportion of employees departing the company from various departments. In this 16.12% attrition, 39% are sales representatives from the sales department, 24% are R&D laboratory technicians, 23% are human resources, 17% are sales representatives from sales, and 16% are R&D research scientists, some major job roles and departments leaving the company. In this, only managers from the human resource department has zero attrition compared to other departments, and after using the logistic regression model, which has an accuracy of 89.5%, better than the majority class model of 83% , offers a better prediction applied on the data with out standardizing the values  we can see that some predictors like business_travelTravel_Frequently (coefficient:1.925e+00),over_timeYes (coefficient:1.970e+00),years_since_last_promotion (coefficient:1.780e-01) had more impact on the attrition or were the primary reasons for an employee to leave the company but after standardizing the values by scaling (so that all values will be on the same scale) and applying logistic regression model on the standardized values, we can see that the overtime yes is the predictor with the largest effect size of 1.97 on attrition, which means that employees who work overtime are the people who tend to leave the company compared to those who don't work overtime with this data a policy change has been proposed where the employees don't need to work over time. After implementing this policy, we can see that the churn probability is 10.12%, 6% less than the overall attrition rate(16.12%). From this observation, working overtime was a key factor with a 5.9% contribution in overall attrition and the reason for employee's decision to leave the company. Hence, it is better to implement the policy of not making employees work overtime, which reduces attrition and may increase employee retention.
 
+This project is been added to github for testing git and r studio connection
