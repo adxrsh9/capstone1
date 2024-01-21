@@ -1,6 +1,7 @@
 ---
 title: "Bio Implants case assignment modified "
 author: "Adarsh Fnu "
+gmail : "adarsh9102000@gmail.com"
 date: "1/21/2024 "
 output: 
   html_document:
