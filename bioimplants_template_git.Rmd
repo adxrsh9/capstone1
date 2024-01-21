@@ -1,0 +1,102 @@
+---
+title: "Bio Implants case assignment "
+author: "Adarsh Fnu "
+date: "1/21/2024 "
+output: 
+  html_document:
+    toc: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#Load libraries 
+library(tidyverse)
+```
+
+
+```{r}
+#Load data 
+bioimp <- read.csv("bioimplants.csv") %>% mutate(attrition = factor(attrition))
+#Summary of the data
+summary(bioimp)
+
+```
+## Q1
+
+```{r}
+#1)
+#Calculating overall attrition rate
+churn <- mean(bioimp$attrition == "Yes")
+churn 
+
+
+#2)
+#Summary table for attrition rate in descending order by department & job role
+bioimp %>% 
+  group_by(department,job_role) %>%
+  dplyr::summarize(attrition = mean(attrition == "Yes"))%>%
+  arrange(desc(attrition))
+
+#Calculating Majority class for attrition
+no <- 1233 / (1233+237)# attrition = "no" (who are not leaving the company )
+no
+yes<- 237 / (1233+237)# attrition = "yes" (who are leaving the company)
+yes
+```
+We can see that the bio-implants have an overall attrition rate of 16.12%, indicating the proportion of employees departing the organization for different causes across various departments. We can see that the sales department has the highest attrition rate of 39.75% of sales representatives leaving the company. This is followed by the R & D department and the Human resources department, having 23.9% to 23% of laboratory technicians and human resources leaving the company, Furthermore, we can see that 17% of sales executives are departing the organization from the sales department.From the R & D department, we can see 16% of research scientists and 6.9% of the Manufacturing Director and Healthcare Representative leaving the department, 5% of managers from the sales and R&D dept and 2% of the Research Director from the R&D dept leaving the company .Only the managers of human resources department has remained unaffected, with a zero attrition rate, indicating a positive sign for bio-implants. 
+After calculating for majority class,we can see that the attrition - "No" with 83.8% (i.e.83.8% of the employees are not leaving the company) becomes the majority class over attrition - "yes" of 16.12% (leaving the company) , here the majority class (attrition - "no") of 83.8 % acts as the bench mark for other prediction models as this model has 83.8%  accuracy of capturing the factors that effect the attrition.
+
+## Q2
+```{r}
+# Fitting logistic regression model of attrition with glm().family = binomial and discarding the employee number as it is not a predictor 
+logistic_mod <- glm(ifelse(attrition=="Yes", 1, 0) ~.- employee_number, 
+                    data = bioimp, 
+                    family = binomial)
+
+#Summary of logistic model
+summary(logistic_mod)
+
+#Compare the predicted labels with the observed labels with decision threshold 0.5.
+
+(ifelse(predict(logistic_mod, type = "response") > .5, "Yes", "No") == bioimp$attrition) %>% mean
+
+```
+After applying logistic regression model in order to predict the attrition using all other predictors expect employee number which does not act as a predictor, we can see that some predictors like business_travelTravel_Frequently (coefficient:1.925e+00, p-value : 2.70e-06),distance_from_home (coefficient:4.584e-02, p-value : 1.95e-05),over_timeYes (coefficient:1.970e+00, p-value : < 2e-16),years_since_last_promotion (coefficient:1.780e-01, p-value : 2.30e-05),years_in_current_role (coefficient: -1.518e-01 ,p-value : 0.000789) are making significant impact on attrition and also these might be the reasons for an employee to leave the company.
+The accuracy of the model with respect to attrition with a decision threshold of .5 is 89.25% or 0.8925
+It is clear that the logistic regression model with a accuracy 89.25 % offers a better prediction compared to majority class model with accuracy of 83.8% , this shows that the logistic regression model is able to capture more details or data of the predictors which are influencing the employee attrition compared to majority class model.
+
+
+## Q3
+```{r}
+#Scaling the data 
+bioimp_scaled <- bioimp %>% 
+  mutate_if(is.numeric, function(x) scale(x) %>% as.vector()) 
+
+#Glimpse of scaled data 
+glimpse(bioimp_scaled)
+
+#Refitting the model with scaled data set to asses the coefficients 
+(scaled_mod <- glm(attrition ~.- department - employee_number, 
+                    data = bioimp_scaled, 
+                    family = binomial)) %>% 
+  summary
+
+```
+1. After scaling the data, we can see that the "over_timeYes" predictor has the highest coefficient or largest effect size of "1.973530" compared to other available predictors.
+2. After standardizing the coefficients of all predictors, we can see that the employees who tend to do over time play a crucial role in attrition or leaving the company, where the effect size is 1.97, which is the largest value among all predictors. Here, the p-value of less than 0.05 says that if an employee works overtime(x), it increases the log odds of the employee leaving the company by 1.97 units(y) compared to those who don't work overtime.
+
+## Q4
+```{r}
+#Creating new data and calculating probability churn (changing over time to "no")
+predict(logistic_mod, 
+        newdata = mutate(bioimp, over_time = "No"),
+        type = "response") %>% 
+  mean
+#Change in attrition
+ 0.1612245 - 0.1026007
+```
+1. After performing logistic regression on standardized values, we discovered that overtime is one of the leading causes for an employee to leave the company (effect size: 1.97), and to reduce attrition, I propose changing the overtime policy and not requiring any employee to work more hours than their assigned shift timings.
+2.After adopting the policy change, the attrition rate is 0.102, or 10.2%. We can notice a 5.9% decline in attrition rate after modifying the policy compared to the prior attrition rate (i.e., 16.12%). As a result, the employee's working overtime plays a key part in an employee's decision to leave the company. By not allowing them to work extra, we may witness a 6% decrease in churn probability compared to the previous attrition rate. 
+
+## Q5
+We can see from the calculations that the bio-implants firm has an overall attrition rate of 16.12%, representing the proportion of employees departing the company from various departments. In this 16.12% attrition, 39% are sales representatives from the sales department, 24% are R&D laboratory technicians, 23% are human resources, 17% are sales representatives from sales, and 16% are R&D research scientists, some major job roles and departments leaving the company. In this, only managers from the human resource department has zero attrition compared to other departments, and after using the logistic regression model, which has an accuracy of 89.5%, better than the majority class model of 83% , offers a better prediction applied on the data with out standardizing the values  we can see that some predictors like business_travelTravel_Frequently (coefficient:1.925e+00),over_timeYes (coefficient:1.970e+00),years_since_last_promotion (coefficient:1.780e-01) had more impact on the attrition or were the primary reasons for an employee to leave the company but after standardizing the values by scaling (so that all values will be on the same scale) and applying logistic regression model on the standardized values, we can see that the overtime yes is the predictor with the largest effect size of 1.97 on attrition, which means that employees who work overtime are the people who tend to leave the company compared to those who don't work overtime with this data a policy change has been proposed where the employees don't need to work over time. After implementing this policy, we can see that the churn probability is 10.12%, 6% less than the overall attrition rate(16.12%). From this observation, working overtime was a key factor with a 5.9% contribution in overall attrition and the reason for employee's decision to leave the company. Hence, it is better to implement the policy of not making employees work overtime, which reduces attrition and may increase employee retention.
+
